@@ -1,0 +1,133 @@
+$primary: $turquoise !default
+
+$info: $cyan !default
+$success: $green !default
+$warning: $yellow !default
+$danger: $red !default
+
+$light: $white-ter !default
+$dark: $grey-darker !default
+
+// Invert colors
+
+$orange-invert: findColorInvert($orange) !default
+$yellow-invert: findColorInvert($yellow) !default
+$green-invert: findColorInvert($green) !default
+$turquoise-invert: findColorInvert($turquoise) !default
+$cyan-invert: findColorInvert($cyan) !default
+$blue-invert: findColorInvert($blue) !default
+$purple-invert: findColorInvert($purple) !default
+$red-invert: findColorInvert($red) !default
+
+$primary-invert: $turquoise-invert !default
+$info-invert: $cyan-invert !default
+$success-invert: $green-invert !default
+$warning-invert: $yellow-invert !default
+$danger-invert: $red-invert !default
+$light-invert: $dark !default
+$dark-invert: $light !default
+
+// General colors
+
+$background: $white-ter !default
+
+$border: $grey-lighter !default
+$border-hover: $grey-light !default
+$border-light: $grey-lightest !default
+$border-light-hover: $grey-light !default
+
+// Text colors
+
+$text: $grey-dark !default
+$text-invert: findColorInvert($text) !default
+$text-light: $grey !default
+$text-strong: $grey-darker !default
+
+// Code colors
+
+$code: $red !default
+$code-background: $background !default
+
+$pre: $text !default
+$pre-background: $background !default
+
+// Link colors
+
+$link: $blue !default
+$link-invert: $blue-invert !default
+$link-visited: $purple !default
+
+$link-hover: $grey-darker !default
+$link-hover-border: $grey-light !default
+
+$link-focus: $grey-darker !default
+$link-focus-border: $blue !default
+
+$link-active: $grey-darker !default
+$link-active-border: $grey-dark !default
+
+// Typography
+
+$family-primary: $family-sans-serif !default
+$family-secondary: $family-sans-serif !default
+$family-code: $family-monospace !default
+
+$size-small: $size-7 !default
+$size-normal: $size-6 !default
+$size-medium: $size-5 !default
+$size-large: $size-4 !default
+
+// Lists and maps
+$custom-colors: null !default
+$custom-shades: null !default
+
+$colors: mergeColorMaps(("white": ($white, $black, "black"), "black": ($black, $white, "white"), "light": ($light, $light-invert, "dark"), "dark": ($dark, $dark-invert, "light"), "primary": ($primary, $primary-invert), "link": ($link, $link-invert), "info": ($info, $info-invert), "success": ($success, $success-invert), "warning": ($warning, $warning-invert), "danger": ($danger, $danger-invert)), $custom-colors) !default
+$shades: mergeColorMaps(("black-bis": $black-bis, "black-ter": $black-ter, "grey-darker": $grey-darker, "grey-dark": $grey-dark, "grey": $grey, "grey-light": $grey-light, "grey-lighter": $grey-lighter, "white-ter": $white-ter, "white-bis": $white-bis), $custom-shades) !default
+
+$sizes: $size-1 $size-2 $size-3 $size-4 $size-5 $size-6 $size-7 !default
+
+@function findLightColor($color)
+  @if type-of($color) == 'color'
+    @return change-color($color, $lightness: 96%)
+  @return $background
+
+@function findDarkColor($color)
+  @if type-of($color) == 'color'
+    @return change-color($color, $lightness: 29%)
+  @return $text-strong
+
+=css-variable($color, $name, $cssvar-invert)
+  $hue: hue($color)
+  $saturation: saturation($color)
+  $lightness: lightness($color)
+  $base: "#{$prefix}#{$name}"
+  --#{$base}-h: #{$hue}
+  --#{$base}-s: #{$saturation}
+  --#{$base}-l: #{$lightness}
+  --#{$base}: hsl(var(--#{$base}-h), calc(var(--#{$base}-s)), calc(var(--#{$base}-l)))
+  --#{$base}-hover: hsl(var(--#{$base}-h), calc(var(--#{$base}-s)), calc(var(--#{$base}-l)  - 5%))
+  --#{$base}-active: hsl(var(--#{$base}-h), calc(var(--#{$base}-s)), calc(var(--#{$base}-l)  - 10%))
+
+  $light: findLightColor($color)
+  --#{$base}-light: #{$light}
+  --#{$base}-light-hover: #{darken($light, 5%)}
+  --#{$base}-light-active: #{darken($light, 10%)}
+
+  $dark: findDarkColor($color)
+  --#{$base}-dark: #{$dark}
+  --#{$base}-dark-hover: #{darken($dark, 5%)}
+  --#{$base}-dark-active: #{darken($dark, 10%)}
+
+  @if $cssvar-invert
+    --#{$base}-invert: var(--#{$prefix}#{$cssvar-invert})
+  @else
+    --#{$base}-invert: #{findColorInvert($color)}
+
+\:root
+  @each $name, $trio in $colors
+    $color: nth($trio, 1)
+    $color-invert: nth($trio, 2)
+    $cssvar-invert: false
+    @if length($trio) > 2
+      $cssvar-invert: nth($trio, 3)
+    +css-variable($color, $name, $cssvar-invert)
